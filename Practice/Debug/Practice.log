@@ -1,2 +1,4 @@
-﻿  ParticleManager.cpp
+﻿  main.cpp
+c:\users\jbrock\github\practice\practice\shader.h(53): warning C4101: 'infoLog': unreferenced local variable
+c:\users\jbrock\github\practice\practice\shader.h(52): warning C4101: 'success': unreferenced local variable
   Practice.vcxproj -> C:\Users\jbrock\Github\Practice\Debug\Practice.exe

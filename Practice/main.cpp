@@ -9,7 +9,7 @@
 
 #include <unordered_map>
 
-
+//OVERALL - Focus on doing things the right time the first time I type it
 
 // Left off
 // - Refactor my different shader / vao
@@ -214,33 +214,19 @@ int main()
     // -------------------------------------------------------------------------------------------
     // Configure shader uniform texture variables
     // Int param is which texture unit to bind to (i.e. GL_TEXTURE0, but not that enum value)
+    ourShader.use(); // don't forget to activate/use the shader before setting uniforms! jbrock: can confirm, this messed me up
     ourShader.setInt("texture1", 0); //0 = Texture Unit 0
     ourShader.setInt("texture2", 1); //1 = Texture Unit 1
-
+    
+    triShader.use();
     triShader.setInt("texture1", 0);
 
     //TODO - need to understand the memory of texture units. I don't think it is simple though,
     // I need to understand the whole pipeline in general
 
-    std::vector<Particle> particles;
-
-    /*Particle p;
-    p.mLifeTime = 10;
-    p.mPosition = cubePositions[0];
-    //std::chrono::system_clock::duration lifeTime;
-    //lifeTime.
-    p.mEndDisplayTime = std::chrono::system_clock::now() + std::chrono::seconds(5);
-    particles.push_back(p);
-    */
-    static int cubeNumber = 0;
-    std::chrono::system_clock::time_point nextObj = std::chrono::system_clock::now();// +std::chrono::seconds(2);
-    
-
     // uncomment this call to draw in wireframe polygons.
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-
-    
     // render loop
     // -----------
     long long totalFrames = 0;
@@ -279,7 +265,7 @@ int main()
         glBindVertexArray(meshVAO);
 
         //for (unsigned int i = 0; i < particles.size(); ++i)
-        for (const auto& particle : particles)
+        for (const auto& particle : ParticleManager::Instance().mParticles)
         {
             // calculate the model matrix for each object and pass it to shader before drawing
             glm::mat4 model;
@@ -311,42 +297,27 @@ int main()
         }
 
         //END DRAW OF BOXES
-
+        
 
 
         //START DRAW OF TRIANGLE
 
         // activate shader
         triShader.use();
-        triShader.setMat4("projection", projection); // note: currently we set the projection matrix each frame,
-                                                     //but since the projection matrix rarely changes it's often best practice to set it outside the main loop only once.
+        triShader.setMat4("projection", projection);
         triShader.setMat4("view", view);
-        // create transformations
-        //glm::mat4 view;
-        //glm::mat4 projection;
-        //projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        //view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-        // pass transformation matrices to the shader
-        //triShader.setMat4("projection", projection); // note: currently we set the projection matrix each frame,
-        //but since the projection matrix rarely changes it's often best practice to set it outside the main loop only once.
-        //triShader.setMat4("view", view);
 
         GLuint meshVAO2 = meshMgr.GetMesh("tris");
         glBindVertexArray(meshVAO2);
-        
-        //glm::mat4 model;
-        //model = glm::translate(model, cubePositions[i]);
-        //model = glm::translate(model, particle.mPosition);
-
-        //model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
-        //triShader.setMat4("model", model);
 
         for (const auto& particle : ParticleManager::Instance().mParticles)
         {
             // calculate the model matrix for each object and pass it to shader before drawing
             glm::mat4 model;
-            //model = glm::translate(model, cubePositions[i]);
-            model = glm::translate(model, particle.mPosition);
+            //temp hack so I can always see the triangles on top of the cubes
+            glm::vec3 temp(particle.mPosition);// .z += 1;
+            temp.z += 1;
+            model = glm::translate(model, temp);
 
             model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
             triShader.setMat4("model", model);
@@ -383,67 +354,21 @@ int main()
         //END DRAW OF TRIANGLE
 
 
-
-
-
-        particles.erase(std::remove_if(
-            particles.begin(), particles.end(),
-            [](const Particle& x) {
-            return x.mEndDisplayTime < std::chrono::system_clock::now(); // put your condition here
-        }), particles.end());
-
-
-        if (nextObj < std::chrono::system_clock::now())
-        {
-            nextObj = std::chrono::system_clock::now() + std::chrono::seconds(1);
-            Particle p;
-            //p.mLifeTime = 10;
-            //float angle = 20.0f * i;
-            //model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-            p.mPosition = cubePositions[cubeNumber++];
-            if (cubeNumber > 9)
-            {
-                cubeNumber = 0;
-            }
-            //std::chrono::system_clock::duration lifeTime;
-            //lifeTime.
-            p.mEndDisplayTime = std::chrono::system_clock::now() + std::chrono::seconds(p.mLifeTime);
-    
-            
-            if ((cubeNumber % 2) == 0)
-            {
-                p.mTextures[0] = texture1;
-                p.mTextures[1] = texture2;
-            }
-            else
-            {
-                p.mTextures[0] = texture2;
-                p.mTextures[1] = texture1;
-            }
-           
-
-            particles.push_back(p);
-            
-
-           
-           
-        }
-        //std::vector<Particle> particles;
-
-        
-
-        /*particles.erase()
-        if (particles[i].mEndDisplayTime < std::chrono::system_clock::now())
-        {
-            
-        }*/
-
         // LEFT OFF (12/2) TODO - improve reporting. Track number of slow frames, track part of frame timings,
         // so like, how much time is in the draw call for exampleS
         // Also, figure out a better way to print an interval rather than every 10k frames
         // After profiling, lets try to clean up code and start building a simple authoring pipeline for particles!
         // (read from file, how do divide things into our object model so things are done efficiently)
         // (minimize VAOs, draw calls, etc...)
+
+        // LEFT OFF (12/8)
+        // I got json reading in there, started particle manager. TODO - convert over boxes so they are using it
+        // too. And actually create some useful json files for them. Lots of cleanup around that stuff
+
+        // LEFT OFF (12/9)
+        // Flush out the Particle class more? Particles of different type (i.e. vertices/shapes, VAOs, etc...)
+        // How do I store them efficiently so I can loop through and draw all the ones of the same type
+        // together?
 
         profiler.EndFrame();
         ++totalFrames;

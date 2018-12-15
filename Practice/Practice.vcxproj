@@ -129,6 +129,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mainJustWindow.cpp" />
     <ClCompile Include="MeshManager.cpp" />
+    <ClCompile Include="Particle.cpp" />
     <ClCompile Include="ParticleManager.cpp" />
     <ClCompile Include="Profiler.cpp" />
     <ClCompile Include="TextureManager.cpp" />

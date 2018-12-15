@@ -60,38 +60,24 @@ void ParticleManager::LoadParticleDefinitions()
     std::ifstream i("../DATA/Triangle1.json");
     json j;
     i >> j;
-    /*//
-    /std::ifstream t("../DATA/Triangle1.json");
-    std::string contents((std::istreambuf_iterator<char>(t)),
-                          std::istreambuf_iterator<char>());
-
-    std::cout << contents << std::endl;
-
-    // serialization with pretty printing
-    // pass in the amount of spaces to indent
-    std::cout << j.dump(4) << std::endl;
-
-    // create object from string literal
-    json j = contents.c_str()_json;*/
+    
     std::cout << j << std::endl;
     std::cout << j.dump(4) << std::endl;
 
-    Particle p;
-    p.mPosition.x = j["mPosition"]["x"];
-    p.mPosition.y = j["mPosition"]["y"];
-    p.mPosition.z = j["mPosition"]["z"];
-    p.mLifeTime = j["mLifeTime"];
-    p.mTextures[0] = j["mTextures"][0];
-    p.mTextures[1] = j["mTextures"][1];
-    p.mTextures[2] = j["mTextures"][2];
-    p.mTextures[3] = j["mTextures"][3];
-    mParticles.push_back(p); //TODO improve so no copy
-    return;
-    //people_file >> people;
-
-
-
+    //mParticles.emplace_back(j);
 }
+
+// void ParticleManager::ParseParticleJson(const json& j, Particle& outParticle) const
+// {
+//     outParticle.mPosition.x = j["mPosition"]["x"];
+//     outParticle.mPosition.y = j["mPosition"]["y"];
+//     outParticle.mPosition.z = j["mPosition"]["z"];
+//     outParticle.mLifeTime = j["mLifeTime"];
+//     outParticle.mTextures[0] = j["mTextures"][0];
+//     outParticle.mTextures[1] = j["mTextures"][1];
+//     outParticle.mTextures[2] = j["mTextures"][2];
+//     outParticle.mTextures[3] = j["mTextures"][3];
+// }
 
 void ParticleManager::Update()
 {
@@ -127,8 +113,8 @@ void ParticleManager::Update()
         //float angle = 20.0f * i;
         //model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
         p.mPosition = cubePositions[cubeNumber++];
-        //temp hack so I can always see the triangles on top of the cubes
-        p.mPosition.z += 1;
+        
+        
         if (cubeNumber > 9)
         {
             cubeNumber = 0;
@@ -138,7 +124,7 @@ void ParticleManager::Update()
         p.mEndDisplayTime = std::chrono::system_clock::now() + std::chrono::seconds(p.mLifeTime);
 
 
-        if ((cubeNumber % 2) == 1)
+        if ((cubeNumber % 2) == 0)
         {
             //uhhh damn, I need to do this for loadded particles. //TODO
             p.mTextures[0] = 1;
@@ -153,6 +139,9 @@ void ParticleManager::Update()
             //p.mTextures[0] = texture1;
             //p.mTextures[1] = texture2;
         }
+
+        //p.mTextures[0] = 1;
+       // p.mTextures[1] = 2;
 
 
         mParticles.push_back(p);
