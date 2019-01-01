@@ -37,7 +37,8 @@ private:
 
    //TODO - private...
 public:
-    std::vector<Particle> mParticles;
+    std::vector<ParticleDefinition> mParticlesDefinitions;
+    std::vector<ParticleInstance> mParticles;
 
    // Effective Modern C++ book: that deleted functions should generally be public 
    // as it results in better error messages due to the compilers behavior to 

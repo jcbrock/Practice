@@ -100,7 +100,7 @@ void ParticleManager::Update()
 
     mParticles.erase(std::remove_if(
         mParticles.begin(), mParticles.end(),
-        [](const Particle& x) {
+        [](const ParticleInstance& x) {
         return x.mEndDisplayTime < std::chrono::system_clock::now(); // put your condition here
     }), mParticles.end());
 
@@ -108,7 +108,7 @@ void ParticleManager::Update()
     if (nextObj < std::chrono::system_clock::now())
     {
         nextObj = std::chrono::system_clock::now() + std::chrono::seconds(1);
-        Particle p;
+        ParticleInstance p;
         //p.mLifeTime = 10;
         //float angle = 20.0f * i;
         //model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
@@ -121,21 +121,21 @@ void ParticleManager::Update()
         }
         //std::chrono::system_clock::duration lifeTime;
         //lifeTime.
-        p.mEndDisplayTime = std::chrono::system_clock::now() + std::chrono::seconds(p.mLifeTime);
+        p.mEndDisplayTime = std::chrono::system_clock::now() + std::chrono::seconds(p.definition->mLifeTime);
 
 
         if ((cubeNumber % 2) == 0)
         {
             //uhhh damn, I need to do this for loadded particles. //TODO
-            p.mTextures[0] = 1;
-            p.mTextures[1] = 2;
+            p.definition->mTextures[0] = 1;
+            p.definition->mTextures[1] = 2;
             //p.mTextures[0] = texture1;
            // p.mTextures[1] = texture2;
         }
         else
         {
-            p.mTextures[0] = 2;
-            p.mTextures[1] = 1;
+            p.definition->mTextures[0] = 2;
+            p.definition->mTextures[1] = 1;
             //p.mTextures[0] = texture1;
             //p.mTextures[1] = texture2;
         }

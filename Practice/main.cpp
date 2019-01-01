@@ -33,7 +33,7 @@
 #include <algorithm>
 #include <vector>
 
-//#include <windows.h> // for page size
+#include <windows.h> // for page size
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
@@ -58,11 +58,22 @@ const unsigned int SCR_HEIGHT = 600;
 
 int main()
 {
-    //SYSTEM_INFO si;
-    //GetSystemInfo(&si);
-    //std::cout << "Memory page size on this system: " << si.dwPageSize << std::endl;
+    SYSTEM_INFO si;
+    GetSystemInfo(&si);
+    std::cout << "Memory page size on this system: " << si.dwPageSize << std::endl;
     //InitializeSubsystems(si.dwPageSize);
     Profiler profiler;
+
+    std::cout << "Size of glm::mat4: " << sizeof(glm::mat4) << std::endl;
+    std::cout << "Size of glm::vec3: " << sizeof(glm::vec3) << std::endl;
+    std::cout << "Size of std::chrono::system_clock::time_point: " << sizeof(std::chrono::system_clock::time_point) << std::endl;
+    std::cout << "Size of ptr: " << sizeof(void*) << std::endl;
+
+    int sizeOfParticle = sizeof(glm::mat4) + sizeof(glm::vec3) + sizeof(std::chrono::system_clock::time_point) + sizeof(void*);
+    std::cout << "Total size of particle: " << sizeOfParticle << std::endl;
+    std::cout << "Particles per page: " << si.dwPageSize / sizeOfParticle << std::endl;
+
+    return 1;
 
     // glfw: initialize and configure
     // ------------------------------
@@ -277,9 +288,9 @@ int main()
 
             // bind textures on corresponding texture units
             glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, particle.mTextures[0]);
+            glBindTexture(GL_TEXTURE_2D, particle.definition->mTextures[0]);
             glActiveTexture(GL_TEXTURE1);
-            glBindTexture(GL_TEXTURE_2D, particle.mTextures[1]);
+            glBindTexture(GL_TEXTURE_2D, particle.definition->mTextures[1]);
 
             // uh, do this for each model? Can I do it after the loop? I need to understand this a bit more
             // can I draw all the ones with the same texture unit mappings at once?
@@ -324,7 +335,7 @@ int main()
 
             // bind textures on corresponding texture units
             glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, particle.mTextures[0]);
+            glBindTexture(GL_TEXTURE_2D, particle.definition->mTextures[0]);
             //glActiveTexture(GL_TEXTURE1);
             //glBindTexture(GL_TEXTURE_2D, particle.mTextures[1]);
 
